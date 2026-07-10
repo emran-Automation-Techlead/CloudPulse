@@ -1,0 +1,15 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: Kustomize lets us define one clean "base" set of
+# manifests here, then layer environment-specific tweaks (like replica
+# counts or image tags) on top per environment, instead of copy-pasting
+# and drifting out of sync.
+# -----------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - networkpolicy.yaml

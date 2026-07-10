@@ -1,0 +1,61 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: This workflow runs automatically once a week (and can
+# also be triggered manually). It pulls real AWS spend data, summarizes
+# it in plain language, and posts it as a new GitHub Issue — so cost
+# visibility shows up where the engineering team already works, instead
+# of living in a dashboard nobody remembers to check. This is the
+# direct fix for "zero visibility" and an early-warning system for
+# "AWS bill shock."
+# -----------------------------------------------------------------------
+name: Weekly Cost Intelligence Report
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # every Monday at 09:00 UTC
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+permissions:
+  id-token: write
+  contents: read
+  issues: write
+
+env:
+  AWS_REGION: eu-west-1
+
+jobs:
+  cost-report:
+    name: Generate and publish weekly cost report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install boto3
+
+      - name: Configure AWS credentials (OIDC, read-only Cost Explorer access)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Generate cost report
+        run: python scripts/cost-report/generate_report.py --output report.md
+
+      - name: Publish report as a GitHub Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('report.md', 'utf8');
+            const today = new Date().toISOString().slice(0, 10);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Weekly Cost Intelligence Report — ${today}`,
+              body,
+              labels: ['cost-report', 'automated'],
+            });

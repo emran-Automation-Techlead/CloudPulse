@@ -1,0 +1,25 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+tfplan.json
+terraform.tfvars
+crash.log
+crash.*.log
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

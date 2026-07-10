@@ -1,0 +1,12 @@
+{
+  "name": "cloudpulse-sample-app",
+  "version": "1.0.0",
+  "description": "Minimal sample service used to demonstrate CloudPulse's CI/CD, container, and Kubernetes patterns.",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test src/server.test.js"
+  },
+  "license": "MIT"
+}

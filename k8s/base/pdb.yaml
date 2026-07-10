@@ -1,0 +1,19 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: A PodDisruptionBudget tells Kubernetes "no matter what
+# maintenance you're doing (node upgrades, scaling events), never take
+# down more than 1 replica of this app at a time." Without this, routine
+# cluster maintenance could accidentally take the whole app offline at
+# once.
+# -----------------------------------------------------------------------
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudpulse-app
+  labels:
+    app.kubernetes.io/name: cloudpulse-app
+    app.kubernetes.io/owner: platform-team
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudpulse-app

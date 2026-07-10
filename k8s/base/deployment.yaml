@@ -1,0 +1,98 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: This describes how the application should run inside
+# Kubernetes — how many copies (replicas), how it's secured, and how
+# it's spread out for resilience.
+#
+# Security posture (aligned with the Kubernetes "Restricted" Pod
+# Security Standard): runs as a non-root user, cannot escalate
+# privileges, has no Linux capabilities beyond the bare minimum, and
+# uses a read-only root filesystem so an attacker who compromises the
+# app still can't modify its own files.
+#
+# Resilience posture: pod anti-affinity tells Kubernetes "don't put two
+# copies of this app on the same physical node if you can help it," so
+# a single node failing doesn't take the whole service down at once.
+# -----------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudpulse-app
+  labels:
+    app.kubernetes.io/name: cloudpulse-app
+    app.kubernetes.io/owner: platform-team
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudpulse-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloudpulse-app
+        app.kubernetes.io/owner: platform-team
+    spec:
+      # Plain English: refuse to run if the node can't guarantee these
+      # security settings are honored.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Plain English: spread the 3 replicas across different nodes so
+      # one node dying doesn't take out most of the app at once.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: cloudpulse-app
+          requiredDuringSchedulingIgnoredDuringExecution: []
+
+      containers:
+        - name: cloudpulse-app
+          image: cloudpulse-app:latest # replaced by CI with the built, tagged image
+          ports:
+            - containerPort: 8080
+              name: http
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+
+          # Plain English: these numbers are both a cost control (the
+          # autoscaler uses `requests` to size the cluster) and a
+          # stability control (the `limits` ceiling stops one pod from
+          # starving its neighbors).
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+
+          env:
+            - name: PORT
+              value: "8080"

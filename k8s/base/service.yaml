@@ -1,0 +1,20 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: A Service is a stable internal address that always
+# routes to whichever healthy app replicas are currently running —
+# even as pods are added, removed, or replaced during a deploy.
+# -----------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudpulse-app
+  labels:
+    app.kubernetes.io/name: cloudpulse-app
+    app.kubernetes.io/owner: platform-team
+spec:
+  selector:
+    app.kubernetes.io/name: cloudpulse-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  type: ClusterIP

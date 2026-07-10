@@ -1,0 +1,44 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: This is the piece that solves "traffic spikes." The
+# HorizontalPodAutoscaler watches CPU usage and automatically adds more
+# copies of the app when it gets busy (e.g. a marketing campaign goes
+# viral), then removes them again once traffic settles — so the app
+# doesn't fall over under load, and the company isn't paying for
+# capacity it doesn't need the rest of the time.
+#
+# The 60% CPU target (rather than something like 90%) is a deliberate
+# choice: it leaves headroom so new replicas have time to start before
+# the existing ones are overwhelmed.
+# -----------------------------------------------------------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: cloudpulse-app
+  labels:
+    app.kubernetes.io/name: cloudpulse-app
+    app.kubernetes.io/owner: platform-team
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: cloudpulse-app
+  minReplicas: 3
+  maxReplicas: 15
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300 # avoid flapping: wait 5 min of low load before scaling down
+    scaleUp:
+      stabilizationWindowSeconds: 0 # scale up immediately when load hits

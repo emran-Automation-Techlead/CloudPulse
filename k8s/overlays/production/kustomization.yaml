@@ -1,0 +1,21 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: Production-specific overrides layered on top of the
+# shared base manifests — e.g. running more replicas by default than
+# a smaller dev/staging environment would need.
+# -----------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cloudpulse-production
+
+resources:
+  - ../../base
+
+replicas:
+  - name: cloudpulse-app
+    count: 3
+
+images:
+  - name: cloudpulse-app
+    newName: REPLACE_WITH_ECR_REPO_URI
+    newTag: REPLACE_WITH_IMAGE_TAG

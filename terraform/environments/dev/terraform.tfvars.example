@@ -1,0 +1,13 @@
+# PLAIN ENGLISH: Copy this file to terraform.tfvars and fill in real
+# values. terraform.tfvars is gitignored on purpose, since environment
+# specifics (email addresses, org names) shouldn't be committed.
+
+aws_region  = "eu-west-1"
+environment = "dev"
+cost_center = "engineering"
+
+github_org  = "your-github-org"
+github_repo = "CloudPulse"
+
+alert_email        = "you@example.com"
+monthly_budget_usd = 200

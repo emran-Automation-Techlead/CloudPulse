@@ -1,0 +1,43 @@
+# -----------------------------------------------------------------------
+# PLAIN ENGLISH: By default, every pod in a Kubernetes cluster can talk
+# to every other pod — like an office building with no locked doors
+# between departments. This NetworkPolicy locks that down to a
+# "default deny" posture and then explicitly allows only the traffic
+# the app actually needs: incoming web traffic from the load balancer,
+# and outgoing DNS lookups. This limits how far an attacker could move
+# sideways ("lateral movement") if one pod were ever compromised.
+# -----------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cloudpulse-app-default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cloudpulse-app-allow-http-and-dns
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: cloudpulse-app
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
