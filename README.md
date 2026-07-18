@@ -98,6 +98,18 @@ terraform apply tfplan
 
 CI/CD, SBOM generation, and the weekly cost report run automatically via the workflows in `.github/workflows/` once this repository is pushed to GitHub and the required secrets (`AWS_ROLE_ARN` for OIDC, etc.) are configured in repo settings.
 
+## Related Projects
+
+CloudPulse is the workload platform layer — EKS, canary deploys, SBOM,
+cost intelligence. It assumes an account/network/IAM foundation
+underneath it; [`eu-secure-landing-zone`](https://github.com/emran-Automation-Techlead/eu-secure-landing-zone)
+is that foundation (VPC + gateway endpoints, OIDC-federated IAM with
+permission boundaries, S3-native-locked state, OPA policy gates,
+offline-tested modules) and is where the network/IAM patterns here are
+headed next. [`gdpr-event-api`](https://github.com/emran-Automation-Techlead/gdpr-event-api)
+is an example serverless workload built for that same `eu-central-1`
+foundation.
+
 ## Design Notes & Self-Assessment
 
 See [`docs/SELF_ASSESSMENT.md`](docs/SELF_ASSESSMENT.md) for the 25-item quality checklist this project was built and verified against.
