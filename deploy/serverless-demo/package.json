@@ -1,0 +1,8 @@
+{
+  "name": "cloudpulse-serverless-demo",
+  "version": "1.0.0",
+  "description": "Lambda port of the CloudPulse sample service for a live AWS demo.",
+  "main": "src/handler.js",
+  "scripts": { "test": "node --test src/handler.test.js" },
+  "license": "MIT"
+}

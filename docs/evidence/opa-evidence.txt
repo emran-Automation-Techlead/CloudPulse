@@ -1,0 +1,10 @@
+$ opa eval -d policies/opa/terraform/deny_open_security_groups.rego -i docs/evidence/opa-samples/sg-rule-open-ssh.json 'data.terraform.security.deny'
+[
+  "Security group rule 'aws_security_group_rule.ssh_from_anywhere' opens sensitive port 22 to the entire internet (0.0.0.0/0). Restrict to specific known IP ranges instead."
+]
+
+$ opa eval -d policies/opa/terraform/deny_open_security_groups.rego -i docs/evidence/opa-samples/sg-rule-ssh-office-only.json 'data.terraform.security.deny'
+[]
+
+$ opa test policies/opa
+PASS: 4/4

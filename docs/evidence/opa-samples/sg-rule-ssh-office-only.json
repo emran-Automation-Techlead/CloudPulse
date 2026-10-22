@@ -1,0 +1,1 @@
+{"resource_changes":[{"address":"aws_security_group_rule.ssh_from_office","type":"aws_security_group_rule","change":{"after":{"type":"ingress","cidr_blocks":["10.0.0.0/16"],"from_port":22,"to_port":22}}}]}
